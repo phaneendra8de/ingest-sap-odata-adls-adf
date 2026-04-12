@@ -1,0 +1,9 @@
+{
+	"name": "adf-sap-api-ingestion-dev",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "cc13e54e-2506-4b8b-a18c-3788ebc4bf6c",
+		"tenantId": "86a25666-904e-4d07-81e7-660bfb3ae9d2"
+	}
+}
