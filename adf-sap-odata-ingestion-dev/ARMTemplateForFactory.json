@@ -37,7 +37,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_full_load_odata')]",
+			"name": "[concat(parameters('factoryName'), '/pl_customers_full_load_odata')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -324,7 +324,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_incremental_odata')]",
+			"name": "[concat(parameters('factoryName'), '/pl_orders_incremental_odata')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
