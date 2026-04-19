@@ -1,0 +1,43 @@
+{
+	"name": "ds_adls_watermark_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_gen2",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_container": {
+				"type": "string",
+				"defaultValue": "raw"
+			},
+			"p_directory": {
+				"type": "string",
+				"defaultValue": "config"
+			},
+			"p_file_name": {
+				"type": "string",
+				"defaultValue": "watermark_orders.json"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().p_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().p_directory",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().p_container",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}
