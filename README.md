@@ -25,7 +25,7 @@ SAP OData → ADF (REST Connector) → ADLS Gen2 (Raw Layer)
 | Orders | raw/orders/incremental/load_date=YYYY-MM-DD/orders_HHMMSS.json | Incremental order data |
 | Config | raw/config/watermark_orders.json | Stores last processed timestamp |
 | Config | raw/config/dummy.json | Dummy file for watermark update |
-'''
+
 
 ---
 
