@@ -50,4 +50,18 @@ raw/
 - Performs **incremental ingestion** of orders  
 - Uses **watermark-based filtering**
 
-#### **Pipeline Flow**
+---
+
+## **Summary**
+
+This project demonstrates a robust data ingestion framework for integrating **SAP OData services** with **Azure Data Lake Storage Gen2** using **Azure Data Factory**.
+
+- Implemented **full load ingestion** for customers with OData pagination  
+- Designed **incremental ingestion pipeline** for orders using watermark logic  
+- Enabled efficient data processing using:
+  - Dynamic OData filtering (`$filter`)
+  - Automatic pagination (`$.d.__next`)
+- Maintained **state management** using ADLS-based watermark file  
+- Ensured **scalable and reusable design** with parameterized datasets and pipelines  
+
+This approach supports **reliable, incremental data ingestion**, minimizes data duplication, and aligns with **industry best practices for modern data engineering pipelines**.
