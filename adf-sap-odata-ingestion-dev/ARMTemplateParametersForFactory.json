@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-sap-odata-ingestion-dev"
+		},
+		"ls_adls_gen2_accountKey": {
+			"value": ""
+		},
+		"ls_sap_odata_rest_password": {
+			"value": ""
+		},
+		"ls_adls_gen2_properties_typeProperties_url": {
+			"value": "https://stphdplatdevcin01.dfs.core.windows.net/"
+		},
+		"ls_odata_northwind_properties_typeProperties_url": {
+			"value": "https://services.odata.org/V2/Northwind/Northwind.svc/"
+		},
+		"ls_sap_odata_rest_properties_typeProperties_url": {
+			"value": "https://sapes5.sapdevcenter.com"
+		},
+		"ls_sap_odata_rest_properties_typeProperties_userName": {
+			"value": "DEMO"
+		}
+	}
+}
