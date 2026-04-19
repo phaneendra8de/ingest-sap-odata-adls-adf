@@ -18,3 +18,36 @@ SAP OData → ADF (REST Connector) → ADLS Gen2 (Raw Layer)
 ---
 
 ## **Storage Structure**
+raw/
+├── customers/
+│ └── full/
+│ └── load_date=YYYY-MM-DD/
+│ └── customers.json
+│
+├── orders/
+│ └── incremental/
+│ └── load_date=YYYY-MM-DD/
+│ └── orders_HHMMSS.json
+│
+└── config/
+├── watermark_orders.json
+└── dummy.json
+
+
+---
+
+## **Pipelines**
+
+### **pl_customers_full_load_odata**
+- Performs **full data ingestion** of customers  
+- Uses OData pagination (`$.d.__next`)  
+- No filters applied  
+- Writes data to partitioned ADLS path  
+
+---
+
+### **pl_orders_incremental_odata**
+- Performs **incremental ingestion** of orders  
+- Uses **watermark-based filtering**
+
+#### **Pipeline Flow**
