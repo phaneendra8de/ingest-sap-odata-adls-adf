@@ -1,0 +1,9 @@
+{
+	"name": "adf-sap-odata-ingestion-dev",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "c67b7d39-4af5-43bf-98c3-c6860d883fb9",
+		"tenantId": "86a25666-904e-4d07-81e7-660bfb3ae9d2"
+	}
+}
