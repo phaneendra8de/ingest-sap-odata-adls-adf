@@ -1,6 +1,10 @@
 {
 	"name": "ds_adls_sap_json",
 	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_gen2",
+			"type": "LinkedServiceReference"
+		},
 		"parameters": {
 			"p_dir_path": {
 				"type": "string"
