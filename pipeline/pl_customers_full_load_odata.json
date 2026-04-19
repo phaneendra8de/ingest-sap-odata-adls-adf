@@ -1,5 +1,5 @@
 {
-	"name": "pl_full_load_odata",
+	"name": "pl_customers_full_load_odata",
 	"properties": {
 		"activities": [
 			{

@@ -1,5 +1,5 @@
 {
-	"name": "pl_incremental_odata",
+	"name": "pl_orders_incremental_odata",
 	"properties": {
 		"activities": [
 			{
