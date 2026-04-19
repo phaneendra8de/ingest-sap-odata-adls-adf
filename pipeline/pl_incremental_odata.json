@@ -1,0 +1,80 @@
+{
+	"name": "pl_incremental_odata",
+	"properties": {
+		"activities": [
+			{
+				"name": "act_copy_orders_incremental",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"AbsoluteUrl": "$.d.__next"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_odata_orders_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_filter": {
+								"value": "@concat(\n  '$filter=OrderDate gt datetime''',\n  pipeline().parameters.p_watermark,\n  ''''\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_raw_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_container": {
+								"value": "raw",
+								"type": "Expression"
+							},
+							"p_directory": {
+								"value": "@concat(\n  'orders/incremental/load_date=',\n  formatDateTime(utcNow(),'yyyy-MM-dd')\n)",
+								"type": "Expression"
+							},
+							"p_file_name": {
+								"value": "@concat(\n  'orders_',\n  formatDateTime(utcNow(),'HHmmss'),\n  '.json'\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"p_watermark": {
+				"type": "string",
+				"defaultValue": "1997-01-01T00:00:00"
+			}
+		},
+		"annotations": []
+	}
+}
