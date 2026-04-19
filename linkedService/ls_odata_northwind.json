@@ -1,0 +1,12 @@
+{
+	"name": "ls_odata_northwind",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://services.odata.org/V2/Northwind/Northwind.svc/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
