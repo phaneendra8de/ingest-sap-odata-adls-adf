@@ -1,0 +1,23 @@
+{
+	"name": "ds_odata_orders_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_odata_northwind",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_filter": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat('Orders?',dataset().p_filter)",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}
