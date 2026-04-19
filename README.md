@@ -1,36 +1,70 @@
-# ingest-sapodata-adls-adf
+SAP OData Ingestion using Azure Data Factory
+Overview
+This project implements a scalable ingestion framework for SAP OData services into Azure Data Lake Storage Gen2 (ADLS) using Azure Data Factory (ADF).
 
-## Project Overview
+It supports:
 
-This project demonstrates ingestion of SAP OData services using Azure Data Factory into ADLS Gen2 (raw layer).
+Full Load Pipeline for bulk ingestion of customers
 
-## Architecture
+Incremental Load Pipeline for delta ingestion of orders using watermark-based change capture
 
-SAP OData → Azure Data Factory → ADLS Gen2 (Raw JSON)
+Architecture
+SAP OData → ADF (REST Connector) → ADLS Gen2 (Raw Layer)
 
-## Key Features
+Storage Structure
+raw/
+├── customers/
+│   ├── full/
+│   │   └── load_date=YYYY-MM-DD/
+│   │       └── customers.json
+│
+├── orders/
+│   ├── incremental/
+│   │   └── load_date=YYYY-MM-DD/
+│   │       └── orders_HHMMSS.json
+│
+└── config/
+├── watermark_orders.json
+└── dummy.json
 
-* OData-based extraction
-* Pagination using $top and $skip
-* Incremental loading using delta fields
-* Parameterized pipelines
+Pipelines
+pl_customers_full_load_odata
+Loads the complete customer dataset
 
-## Tech Stack
+Utilizes OData pagination ($.d.__next)
 
-* Azure Data Factory
-* Azure Data Lake Storage Gen2
-* Azure Key Vault
+No filters applied
 
-## Structure
+pl_orders_incremental_odata
+Fetches only new or updated orders
 
-* adf/ → Pipelines, datasets, linked services
-* source_config/ → OData configuration
-* config/ → Environment configuration
+Flow:
 
-## Security
+Lookup watermark
 
-Credentials are securely managed using Azure Key Vault.
+Copy incremental orders ($filter=OrderDate gt last_watermark)
 
-## Output
+Capture current timestamp
 
-Data is stored in ADLS Gen2 in JSON format.
+Update watermark file
+
+Incremental Logic
+$filter=OrderDate gt last_watermark
+
+Ensures only records newer than the last processed timestamp are ingested
+
+Pagination handled automatically via $.d.__next
+
+Watermark Management
+Location: raw/config/watermark_orders.json
+
+Initial setup:  
+{ "last_watermark": "1997-01-01T00:00:00" }
+
+Update process:
+
+Uses dummy source file
+
+Adds dynamic column (last_watermark)
+
+Overwrites existing watermark file
