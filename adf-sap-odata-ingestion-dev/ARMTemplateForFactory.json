@@ -322,6 +322,289 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_incremental_odata')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "act_copy_orders_incremental",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "act_get_watermark",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": "$.d.__next"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_odata_orders_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_filter": {
+										"value": "@concat(\n  '$filter=OrderDate gt datetime''',\n  activity('act_get_watermark').output.firstRow.last_watermark,\n  ''''\n)",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_adls_raw_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": {
+										"value": "raw",
+										"type": "Expression"
+									},
+									"p_directory": {
+										"value": "@concat(\n  'odata/orders/incremental/load_date=',\n  formatDateTime(utcNow(),'yyyy-MM-dd')\n)",
+										"type": "Expression"
+									},
+									"p_file_name": {
+										"value": "@concat(\n  'orders_',\n  formatDateTime(utcNow(),'HHmmss'),\n  '.json'\n)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "act_get_watermark",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_adls_watermark_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": "raw",
+									"p_directory": "odata/config",
+									"p_file_name": "watermark_orders.json"
+								}
+							}
+						}
+					},
+					{
+						"name": "act_set_current_time",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "act_copy_orders_incremental",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_current_time",
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "act_update_watermark",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "act_set_current_time",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"additionalColumns": [
+									{
+										"name": "last_watermark",
+										"value": {
+											"value": "@variables('v_current_time')",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_adls_watermark_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_directory": "odata/config",
+									"p_file_name": "dummy.json"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_adls_watermark_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": "raw",
+									"p_directory": "odata/config",
+									"p_file_name": "watermark_orders.json"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"p_watermark": {
+						"type": "string",
+						"defaultValue": "1997-01-01T00:00:00"
+					}
+				},
+				"variables": {
+					"v_current_time": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_odata_orders_json')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_raw_json')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_watermark_json')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_watermark_json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_gen2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_container": {
+						"type": "string",
+						"defaultValue": "raw"
+					},
+					"p_directory": {
+						"type": "string",
+						"defaultValue": "config"
+					},
+					"p_file_name": {
+						"type": "string",
+						"defaultValue": "watermark_orders.json"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().p_file_name",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().p_directory",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().p_container",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_gen2')]"
+			]
 		}
 	]
 }
