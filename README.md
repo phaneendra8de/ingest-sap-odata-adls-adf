@@ -1,17 +1,20 @@
 SAP OData Ingestion using Azure Data Factory
 Overview
-This project implements a scalable ingestion framework for SAP OData services into Azure Data Lake Storage Gen2 (ADLS) using Azure Data Factory (ADF).
+This repository contains a production-ready framework for ingesting SAP OData services into Azure Data Lake Storage Gen2 (ADLS) using Azure Data Factory (ADF).
 
-It supports:
+It supports two key pipelines:
 
-Full Load Pipeline for bulk ingestion of customers
+pl_customers_full_load_odata → full dataset ingestion of customers
 
-Incremental Load Pipeline for delta ingestion of orders using watermark-based change capture
+pl_orders_incremental_odata → incremental ingestion of orders using watermark-based logic
 
 Architecture
 SAP OData → ADF (REST Connector) → ADLS Gen2 (Raw Layer)
 
-Storage Structure
+This design ensures scalability, auditability, and separation of responsibilities between full and incremental loads.
+
+Storage Layout
+Code
 raw/
 ├── customers/
 │   ├── full/
@@ -24,14 +27,13 @@ raw/
 │   │       └── orders_HHMMSS.json
 │
 └── config/
-├── watermark_orders.json
-└── dummy.json
-
+    ├── watermark_orders.json
+    └── dummy.json
 Pipelines
 pl_customers_full_load_odata
 Loads the complete customer dataset
 
-Utilizes OData pagination ($.d.__next)
+Uses OData pagination ($.d.__next)
 
 No filters applied
 
@@ -67,4 +69,3 @@ Uses dummy source file
 
 Adds dynamic column (last_watermark)
 
-Overwrites existing watermark file
