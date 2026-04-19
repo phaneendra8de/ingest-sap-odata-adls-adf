@@ -18,6 +18,7 @@ SAP OData → ADF (REST Connector) → ADLS Gen2 (Raw Layer)
 ---
 
 ## **Storage Structure**
+'''
 raw/
 ├── customers/
 │ └── full/
@@ -32,7 +33,7 @@ raw/
 └── config/
 ├── watermark_orders.json
 └── dummy.json
-
+'''
 
 ---
 
